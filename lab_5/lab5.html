@@ -1,0 +1,194 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Liam O'Mara's First Web Map</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossorigin="">
+
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- Map container -->
+    <div id="map"></div>
+
+    <!-- Leaflet JavaScript -->
+    <script
+        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin="">
+    </script>
+
+    <script>
+
+        // --------------------------------
+        // 1. Initialize the map
+        // --------------------------------
+
+        var map = L.map('map').fitWorld();
+
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+
+
+        // --------------------------------
+        // 2. TAMU building coordinates
+        // --------------------------------
+
+        var kyleField = [30.6084, -96.3402];
+
+        var omBuilding = [30.6179, -96.3386];
+
+        var academicBuilding = [30.6159, -96.3413];
+
+
+        // --------------------------------
+        // 3. Locate the user's location
+        // --------------------------------
+
+        function onLocationFound(e) {
+
+            var radius = e.accuracy / 2;
+
+            L.marker(e.latlng).addTo(map)
+                .bindPopup(
+                    "You are within " + Math.round(radius) +
+                    " meters of this location."
+                )
+                .openPopup();
+
+            L.circle(e.latlng, radius).addTo(map);
+        }
+
+        function onLocationError(e) {
+
+            map.setView(kyleField, 15);
+
+            alert("Location access was denied or unavailable. Map centered on Kyle Field.");
+
+        }
+
+        // Register location events
+        map.on('locationfound', onLocationFound);
+
+        map.on('locationerror', onLocationError);
+
+        // Request the user's location
+        map.locate({
+            setView: true,
+            maxZoom: 16
+        });
+
+
+        // --------------------------------
+        // 4. Kyle Field circle and popup
+        // --------------------------------
+
+        var kyleCircle = L.circle(kyleField, {
+            color: 'red',
+            fillColor: '#f03',
+            fillOpacity: 0.4,
+            radius: 200
+        }).addTo(map);
+
+        kyleCircle.bindPopup(
+            "<b>Kyle Field</b><br>Home of the Texas A&M Aggies!"
+        );
+
+
+        // --------------------------------
+        // 5. Create custom marker icons
+        // --------------------------------
+
+        var greenIcon = L.icon({
+            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+        });
+
+        var redIcon = L.icon({
+            iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-red.png',
+            shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41]
+        });
+
+
+        // --------------------------------
+        // 6. Add O&M Building marker
+        // --------------------------------
+
+        var omMarker = L.marker(omBuilding, {
+            icon: greenIcon
+        }).addTo(map);
+
+        omMarker.bindPopup(
+            "<b>O&M Building</b><br>Texas A&M University"
+        );
+
+
+        // --------------------------------
+        // 7. Add Academic Building marker
+        // --------------------------------
+
+        var academicMarker = L.marker(academicBuilding, {
+            icon: redIcon
+        }).addTo(map);
+
+        academicMarker.bindPopup(
+            "<b>Academic Building</b><br>Texas A&M University"
+        );
+
+
+        // --------------------------------
+        // 8. Map click event - show coordinates
+        // --------------------------------
+
+        function onMapClick(e) {
+
+            L.popup()
+                .setLatLng(e.latlng)
+                .setContent(
+                    "<b>You clicked the map!</b><br>" +
+                    "Latitude: " + e.latlng.lat.toFixed(5) +
+                    "<br>Longitude: " + e.latlng.lng.toFixed(5)
+                )
+                .openOn(map);
+
+        }
+
+        // Register map click event
+        map.on('click', onMapClick);
+
+    </script>
+
+</body>
+</html>
